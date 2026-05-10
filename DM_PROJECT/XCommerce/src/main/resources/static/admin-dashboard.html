@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - XCommerce</title>
+  <style>
+    :root {
+      --bg: #fff4f6;
+      --bg2: #fff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: rgba(17, 24, 39, 0.08);
+      --shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+      --shadow2: 0 6px 18px rgba(17, 24, 39, 0.08);
+      --brand: #ff3f6c;
+      --brand2: #ff7a59;
+      --chip: rgba(255, 63, 108, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+        Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      margin: 0;
+      color: var(--text);
+      background: radial-gradient(1200px 700px at 15% -5%, #ffe2ea 0%, rgba(255, 226, 234, 0) 55%),
+        radial-gradient(900px 550px at 85% 5%, #ffe7df 0%, rgba(255, 231, 223, 0) 45%),
+        linear-gradient(180deg, #fff 0%, #fff4f6 75%, #fff 100%);
+      font-size: 15px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbarInner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 18px 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand2) 100%);
+      box-shadow: 0 8px 20px rgba(255, 63, 108, 0.25);
+    }
+
+    .brandTitle {
+      display: grid;
+      line-height: 1.1;
+    }
+
+    .brandTitle strong {
+      font-size: 20px;
+      letter-spacing: 0.2px;
+    }
+
+    .brandTitle span {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pill {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 22px 26px 34px;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow2);
+      overflow: hidden;
+    }
+
+    .panelHead {
+      padding: 16px 16px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.1px;
+    }
+
+    p.sub {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .panelBody {
+      padding: 14px 16px 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: #374151;
+      margin-bottom: 6px;
+      font-weight: 650;
+      letter-spacing: 0.2px;
+    }
+
+    input[type="text"],
+    input[type="file"] {
+      width: 100%;
+      font-size: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.92);
+      outline: none;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    input:focus {
+      border-color: rgba(255, 63, 108, 0.55);
+      box-shadow: 0 0 0 3px rgba(255, 63, 108, 0.14);
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 63, 108, 0.55);
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand2) 100%);
+      color: white;
+      cursor: pointer;
+      font-weight: 750;
+      letter-spacing: 0.1px;
+      box-shadow: 0 10px 18px rgba(255, 63, 108, 0.2);
+    }
+
+    button.secondary {
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--text);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    button.danger {
+      background: #b91c1c;
+      border-color: #b91c1c;
+      box-shadow: none;
+    }
+
+    .status {
+      font-size: 12px;
+      color: #374151;
+      white-space: pre-wrap;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .okMsg {
+      color: #047857;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th,
+    td {
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+      text-align: left;
+      font-size: 13px;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .pillTag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .PENDING {
+      background: #fff7ed;
+      color: #9a3412;
+      border: 1px solid rgba(154, 52, 18, 0.18);
+    }
+
+    .APPROVED {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid rgba(4, 120, 87, 0.18);
+    }
+
+    .REJECTED {
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid rgba(185, 28, 28, 0.18);
+    }
+
+    .DELETED {
+      background: #f3f4f6;
+      color: #374151;
+      border: 1px solid rgba(55, 65, 81, 0.18);
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .actionsGroup {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      width: 100%;
+    }
+
+    .actionsSep {
+      width: 100%;
+      height: 1px;
+      background: rgba(17, 24, 39, 0.06);
+      margin: 6px 0;
+    }
+
+    .fileRow {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: stretch;
+      max-width: 320px;
+    }
+
+    .fileBtn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 750;
+      font-size: 13px;
+      letter-spacing: 0.1px;
+      user-select: none;
+      white-space: nowrap;
+      min-height: 36px;
+    }
+
+    .fileBtn:hover {
+      border-color: rgba(255, 63, 108, 0.55);
+      box-shadow: 0 0 0 3px rgba(255, 63, 108, 0.10);
+    }
+
+    .fileName {
+      display: flex;
+      align-items: center;
+      min-height: 36px;
+      font-size: 12px;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="topbarInner">
+      <div class="brand">
+        <div class="logo"></div>
+        <div class="brandTitle">
+          <strong>XCommerce</strong>
+          <span>Admin dashboard</span>
+        </div>
+      </div>
+      <div class="pill">Approve & load partner data</div>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="panel">
+      <div class="panelHead">
+        <h1>Partner approvals</h1>
+        <p class="sub">Approve partners, then load their RDF and mapping into Fuseki.</p>
+      </div>
+      <div class="panelBody">
+        <div class="row" style="justify-content: space-between; flex-wrap: wrap;">
+          <div style="min-width: 280px; flex: 1;">
+            <label>Admin key</label>
+            <div class="row">
+              <input id="key" type="text" placeholder="change-me" />
+              <button id="refresh" type="button">Refresh</button>
+            </div>
+          </div>
+          <div class="row" style="justify-content: flex-end;">
+            <a href="/partner-onboarding.html" style="text-decoration:none;"><button class="secondary"
+                type="button">Partner onboarding</button></a>
+            <a href="/product-search.html" style="text-decoration:none;"><button class="secondary"
+                type="button">Back</button></a>
+          </div>
+        </div>
+
+        <div id="status" class="status" style="margin-top: 12px;"></div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Partner</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Approved</th>
+              <th>Mapping</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const keyEl = document.getElementById('key');
+    const statusEl = document.getElementById('status');
+    const tbody = document.getElementById('tbody');
+    const refreshBtn = document.getElementById('refresh');
+
+    function setStatus(t, ok) {
+      statusEl.textContent = t;
+      statusEl.style.color = ok ? '#047857' : '#b91c1c';
+    }
+
+    function fmt(dt) {
+      if (!dt) return '';
+      try { return new Date(dt).toLocaleString(); } catch { return String(dt); }
+    }
+
+    async function api(path, opts) {
+      const res = await fetch(path, opts);
+      const text = await res.text();
+      if (!res.ok) throw new Error(text || ('HTTP ' + res.status));
+      return text ? JSON.parse(text) : {};
+    }
+
+    async function refresh() {
+      tbody.innerHTML = '';
+      setStatus('', true);
+      const key = keyEl.value;
+      if (!key) { setStatus('Admin key is required', false); return; }
+
+      try {
+        const data = await api('/admin/partners?key=' + encodeURIComponent(key));
+        const partners = Array.isArray(data.partners) ? data.partners : [];
+
+        for (const p of partners) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+              <td>${p.id}</td>
+              <td>${p.partnerName}</td>
+              <td><span class="pillTag ${p.status}">${p.status}</span></td>
+              <td>${fmt(p.createdAt)}</td>
+              <td>${fmt(p.approvedAt)}</td>
+              <td>${p.hasMapping ? 'Yes' : 'No'}</td>
+              <td class="actions"></td>
+            `;
+
+          const actionsTd = tr.querySelector('.actions');
+
+          const mkBtn = (label, cls, onClick) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.textContent = label;
+            if (cls) b.className = cls;
+            b.addEventListener('click', onClick);
+            return b;
+          };
+
+          if (p.status === 'PENDING') {
+            actionsTd.appendChild(mkBtn('Approve', '', async () => {
+              try {
+                await api(`/admin/partners/${p.id}/approve?key=${encodeURIComponent(key)}`, { method: 'POST' });
+                await refresh();
+              } catch (e) { setStatus(String(e), false); }
+            }));
+
+            actionsTd.appendChild(mkBtn('Reject', 'danger', async () => {
+              try {
+                await api(`/admin/partners/${p.id}/reject?key=${encodeURIComponent(key)}`, { method: 'POST' });
+                await refresh();
+              } catch (e) { setStatus(String(e), false); }
+            }));
+          }
+
+          if (p.status === 'REJECTED') {
+            const msg = document.createElement('div');
+            msg.className = 'muted';
+            msg.textContent = 'Rejected';
+            actionsTd.appendChild(msg);
+          }
+
+          const mappingInput = document.createElement('input');
+          mappingInput.type = 'file';
+          mappingInput.accept = '.rdf,.ttl,.nt,.n3,.owl,application/rdf+xml,text/turtle';
+          mappingInput.style.maxWidth = '220px';
+
+          const mappingId = `mapping_${p.id}`;
+          mappingInput.id = mappingId;
+
+          const fileRow = document.createElement('div');
+          fileRow.className = 'fileRow';
+
+          const fileBtn = document.createElement('label');
+          fileBtn.className = 'fileBtn';
+          fileBtn.setAttribute('for', mappingId);
+          fileBtn.textContent = 'Choose file';
+
+          const fileName = document.createElement('div');
+          fileName.className = 'fileName';
+          fileName.textContent = p.mappingFileName ? p.mappingFileName : 'No file selected';
+
+          mappingInput.addEventListener('change', async () => {
+            try {
+              const f = mappingInput.files && mappingInput.files[0];
+              fileName.textContent = f ? f.name : 'No file selected';
+              if (!f) return;
+
+              const fd = new FormData();
+              fd.append('mapping', f);
+              await fetch(`/admin/partners/${p.id}/upload-mapping?key=${encodeURIComponent(key)}`, { method: 'POST', body: fd }).then(async r => {
+                const t = await r.text();
+                if (!r.ok) throw new Error(t || ('HTTP ' + r.status));
+              });
+              setStatus('Uploaded successfully.', true);
+              await refresh();
+            } catch (e) {
+              setStatus(String(e), false);
+            }
+          });
+
+          if (p.status === 'APPROVED') {
+            const group1 = document.createElement('div');
+            group1.className = 'actionsGroup';
+            actionsTd.appendChild(group1);
+
+            group1.appendChild(fileRow);
+            fileRow.appendChild(fileBtn);
+            fileRow.appendChild(fileName);
+            group1.appendChild(mappingInput);
+
+            if (p.hasMapping) {
+              const loadBtn = mkBtn('Load RDF & mapping to Fuseki', '', async () => {
+                try {
+                  loadBtn.disabled = true;
+                  await api(`/admin/partners/${p.id}/load-rdf?key=${encodeURIComponent(key)}`, { method: 'POST' });
+                  await api(`/admin/partners/${p.id}/load-mapping?key=${encodeURIComponent(key)}`, { method: 'POST' });
+
+                  const ok = document.createElement('div');
+                  ok.className = 'okMsg';
+                  ok.textContent = 'Uploaded successfully';
+                  loadBtn.replaceWith(ok);
+
+                  setStatus('Uploaded successfully.', true);
+                } catch (e) {
+                  loadBtn.disabled = false;
+                  setStatus(String(e), false);
+                }
+              });
+              actionsTd.appendChild(loadBtn);
+            }
+          }
+
+          if (p.status !== 'DELETED') {
+            const delBtn = mkBtn('Delete', 'danger', async () => {
+              if (!confirm('Are you sure you want to completely delete this file and drop its database graph?')) return;
+              try {
+                delBtn.disabled = true;
+                await api(`/admin/partners/${p.id}/delete?key=${encodeURIComponent(key)}`, { method: 'POST' });
+                await refresh();
+              } catch (e) { delBtn.disabled = false; setStatus(String(e), false); }
+            });
+            delBtn.style.marginLeft = '12px';
+            actionsTd.appendChild(delBtn);
+          }
+
+          tbody.appendChild(tr);
+        }
+      } catch (e) {
+        setStatus(String(e), false);
+      }
+    }
+
+    refreshBtn.addEventListener('click', refresh);
+  </script>
+</body>
+
+</html>

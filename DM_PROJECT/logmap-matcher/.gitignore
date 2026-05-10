@@ -1,0 +1,7 @@
+logmap-log.out
+.project
+.settings/
+/target/
+/test-classes/
+/classes/
+.classpath

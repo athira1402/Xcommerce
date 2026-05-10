@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XCommerce - Product Search</title>
+    <style>
+      :root {
+        --bg: #fff4f6;
+        --bg2: #fff;
+        --text: #111827;
+        --muted: #6b7280;
+        --border: rgba(17, 24, 39, 0.08);
+        --shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+        --shadow2: 0 6px 18px rgba(17, 24, 39, 0.08);
+        --brand: #ff3f6c;
+        --brand2: #ff7a59;
+        --chip: rgba(255, 63, 108, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          Arial, "Noto Sans", "Liberation Sans", sans-serif;
+        margin: 0;
+        color: var(--text);
+        background: radial-gradient(1200px 700px at 15% -5%, #ffe2ea 0%, rgba(255, 226, 234, 0) 55%),
+          radial-gradient(900px 550px at 85% 5%, #ffe7df 0%, rgba(255, 231, 223, 0) 45%),
+          linear-gradient(180deg, #fff 0%, #fff4f6 75%, #fff 100%);
+        font-size: 15px;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .topbarInner {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 18px 26px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--brand) 0%, var(--brand2) 100%);
+        box-shadow: 0 8px 20px rgba(255, 63, 108, 0.25);
+      }
+
+      .brandTitle {
+        display: grid;
+        line-height: 1.1;
+      }
+
+      .brandTitle strong {
+        font-size: 20px;
+        letter-spacing: 0.2px;
+      }
+
+      .brandTitle span {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .pill {
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 999px;
+        padding: 8px 12px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .page {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 22px 26px 34px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 18px;
+        align-items: start;
+      }
+
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .panel {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--shadow2);
+        overflow: hidden;
+      }
+
+      .panelHead {
+        padding: 16px 16px 10px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 20px;
+        letter-spacing: 0.1px;
+      }
+
+      p.sub {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .panelBody {
+        padding: 14px 16px 16px;
+      }
+
+      form {
+        display: grid;
+        gap: 16px;
+      }
+
+      label {
+        display: block;
+        font-size: 12px;
+        color: #374151;
+        margin-bottom: 6px;
+        font-weight: 650;
+        letter-spacing: 0.2px;
+      }
+
+      input,
+      select {
+        font-size: 14px;
+      }
+
+      select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.92);
+        outline: none;
+      }
+
+      select:focus {
+        border-color: rgba(255, 63, 108, 0.55);
+        box-shadow: 0 0 0 3px rgba(255, 63, 108, 0.14);
+      }
+
+      .chipRow {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.92);
+        cursor: pointer;
+        user-select: none;
+        box-shadow: 0 4px 12px rgba(17, 24, 39, 0.06);
+        transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+      }
+
+      .chip:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(17, 24, 39, 0.08);
+      }
+
+      .chipActive {
+        border-color: rgba(255, 63, 108, 0.5);
+        background: var(--chip);
+      }
+
+      .chipDot {
+        width: 9px;
+        height: 9px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--brand) 0%, var(--brand2) 100%);
+      }
+
+      .chipLabel {
+        font-weight: 700;
+        font-size: 13px;
+      }
+
+      .chipSub {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .grid2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+      }
+
+      @media (max-width: 980px) {
+        .grid2 {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .inlineSplit {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+      }
+
+      .unitSelect {
+        width: 140px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        margin-top: 12px;
+      }
+
+      button {
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 63, 108, 0.55);
+        background: linear-gradient(135deg, var(--brand) 0%, var(--brand2) 100%);
+        color: white;
+        cursor: pointer;
+        font-weight: 750;
+        letter-spacing: 0.1px;
+        box-shadow: 0 10px 18px rgba(255, 63, 108, 0.2);
+      }
+
+      button.secondary {
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--text);
+        border: 1px solid var(--border);
+        box-shadow: none;
+      }
+
+      button:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      .status {
+        font-size: 12px;
+        color: #374151;
+      }
+
+      .error {
+        color: #b91c1c;
+      }
+
+      .ok {
+        color: #047857;
+      }
+
+      .right {
+        display: grid;
+        gap: 18px;
+      }
+
+      .resultsHead {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .resultsHeadRight {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      .sortBtn {
+        height: 32px;
+        width: 32px;
+        padding: 0;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--text);
+        box-shadow: none;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        line-height: 1;
+      }
+
+      .sortBtn.active {
+        border-color: rgba(255, 63, 108, 0.55);
+        color: var(--brand);
+      }
+
+      .resultsHead strong {
+        font-size: 18px;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      @media (max-width: 980px) {
+        .cards {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .pCard {
+        padding: 18px 18px;
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: var(--shadow2);
+      }
+
+      .pRow {
+        display: grid;
+        grid-template-columns: 1fr 56px auto;
+        align-items: center;
+        column-gap: 18px;
+        min-height: 60px;
+      }
+
+      .pLeft {
+        display: grid;
+        gap: 6px;
+        min-width: 0;
+      }
+
+      .pPlatformCol {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 56px;
+        min-width: 56px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .pLogo {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        object-fit: contain;
+        border: none;
+        background: transparent;
+        flex-shrink: 0;
+        display: block;
+      }
+
+      .pRight {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+        justify-self: end;
+      }
+
+      .pMeta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      .pMeta .platform {
+        font-size: 11px;
+        color: var(--muted);
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 6px 10px;
+        border-radius: 999px;
+      }
+
+      .pPlatformLine {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .pIndex {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .pName {
+        font-weight: 800;
+        letter-spacing: 0.2px;
+        font-size: 15px;
+        line-height: 1.25;
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .pPrice {
+        margin-top: 10px;
+        font-weight: 900;
+        font-size: 14px;
+      }
+
+      .pPriceInline {
+        margin: 0;
+        font-weight: 900;
+        font-size: 16px;
+      }
+
+      .pBest {
+        background: rgba(255, 63, 108, 0.08);
+        border-color: rgba(255, 63, 108, 0.25);
+      }
+
+      .pBest .pPriceInline {
+        color: var(--accent);
+      }
+
+      .pPriceFinal {
+        margin: 0;
+        font-weight: 900;
+        font-size: 16px;
+        color: var(--accent);
+        display: inline-flex;
+        align-items: baseline;
+        justify-content: flex-end;
+      }
+
+      .pDiscountPct {
+        margin-right: 8px;
+        font-weight: 900;
+        font-size: 13px;
+        color: #dc2626;
+        white-space: nowrap;
+      }
+
+      .pPriceOriginal {
+        margin: 0;
+        font-weight: 700;
+        font-size: 13px;
+        color: var(--muted);
+        text-decoration: line-through;
+      }
+
+      .pPriceOriginal.placeholder {
+        visibility: hidden;
+      }
+
+      .pPriceStack {
+        display: grid;
+        gap: 2px;
+        justify-items: end;
+        min-height: 38px;
+      }
+
+      .xBtn {
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 12px;
+        cursor: pointer;
+        box-shadow: none;
+      }
+
+      .xBtn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .filterHeader {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .filterBox {
+        position: relative;
+        padding-right: 32px;
+        padding-top: 2px;
+      }
+
+      .fieldWrap {
+        position: relative;
+      }
+
+      .filterClose {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.98);
+        color: var(--muted);
+        cursor: pointer;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: none;
+      }
+
+      .filterClose:hover {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.98);
+      }
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: #0b1020;
+        color: #d1e7ff;
+        padding: 12px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 12px;
+        line-height: 1.4;
+        margin: 0;
+        box-shadow: var(--shadow2);
+      }
+
+      .linkBtn {
+        background: transparent;
+        border: none;
+        padding: 0;
+        color: var(--text);
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="topbar">
+      <div class="topbarInner">
+        <div class="brand">
+          <div class="logo"></div>
+          <div class="brandTitle">
+            <strong>XCommerce</strong>
+            <span>Smart product search</span>
+          </div>
+        </div>
+        <div class="pill">POST → <code>http://localhost:8080/products/search</code></div>
+      </div>
+    </div>
+
+    <div class="page">
+      <div id="root"></div>
+    </div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      const { useEffect, useMemo, useState } = React;
+
+      function ProductSearchForm() {
+        const categories = useMemo(() => ["Electronic Devices", "Furniture"], []);
+        const [category, setCategory] = useState("");
+
+        const electronicSubCategories = useMemo(() => ["Laptop", "Mobile", "TV"], []);
+        const furnitureGroups = useMemo(() => ["Seating", "Table", "Storage"], []);
+        const furnitureLeavesByGroup = useMemo(
+          () => ({
+            Seating: ["Chair", "Sofa"],
+            Table: ["Dining", "Study"],
+            Storage: ["Shelf", "Wardrobe"],
+          }),
+          []
+        );
+
+        const filterOptions = useMemo(
+          () => ({
+            Laptop: {
+              Brand: ["Dell", "HP", "Lenovo", "Apple", "Asus", "Acer", "MSI"],
+              Color: ["Black", "Silver", "Gray", "White", "Blue"],
+              HDDValue: ["256", "512", "1024", "2048"],
+              HDDUnit: ["GB", "TB"],
+              RAM: ["8", "16", "32", "64"],
+              OS: ["Windows", "macOS", "Linux"],
+              DisplayTechnology: ["OLED", "IPS", "Mini-LED", "Retina"],
+              DisplaySize: ["13.3", "13.4", "14.0", "15.6", "16.0"],
+              ProcessorSpeed: ["2", "3", "4", "5"],
+              ManufacturingYear: ["2023", "2024", "2025", "2026"],
+            },
+            Mobile: {
+              Brand: ["Apple", "Samsung", "OnePlus", "Google", "Xiaomi", "Vivo"],
+              Color: ["Black", "White", "Blue", "Green", "Purple"],
+              StorageValue: ["128", "256", "512", "1024"],
+              StorageUnit: ["GB"],
+              OS: ["Android", "iOS"],
+              DisplayTechnology: ["LTPO AMOLED", "Super Retina XDR", "OLED"],
+              DisplaySize: ["6.1", "6.3", "6.7", "6.8"],
+              BatteryLife: ["24", "36", "48", "52"],
+              Pixels: ["48MP", "50MP", "108MP", "200MP"],
+              SIMSlots: ["1", "2"],
+              ManufacturingYear: ["2023", "2024", "2025", "2026"],
+            },
+            TV: {
+              Brand: ["Samsung", "Sony", "LG", "TCL", "Hisense", "OnePlus"],
+              DisplayTechnology: ["OLED", "QLED", "Mini-LED", "LED", "Neo QLED"],
+              DisplaySize: ["43", "50", "55", "65", "75", "85"],
+              ScreenResolution: ["3840 x 2160 (4K)", "7680 x 4320 (8K)"],
+              OS: ["Android TV", "Tizen", "webOS", "Google TV"],
+              ManufacturingYear: ["2023", "2024", "2025", "2026"],
+            },
+          }),
+          []
+        );
+
+        const [dynamicOptions, setDynamicOptions] = useState(null);
+
+        const [subCategory, setSubCategory] = useState("");
+        const [furnitureGroup, setFurnitureGroup] = useState("");
+        const [furnitureLeafDraft, setFurnitureLeafDraft] = useState("");
+
+        const [attributes, setAttributes] = useState({});
+
+        const [submitting, setSubmitting] = useState(false);
+        const [status, setStatus] = useState("");
+        const [responseText, setResponseText] = useState("");
+        const [resultColumns, setResultColumns] = useState([]);
+        const [resultRows, setResultRows] = useState([]);
+        const [errorText, setErrorText] = useState("");
+        const [showDebug, setShowDebug] = useState(false);
+
+        const [priceSortDir, setPriceSortDir] = useState("");
+
+        const filterCatalog = useMemo(() => {
+          if (!subCategory) return [];
+
+          if (category === "Furniture") {
+            const common = [
+              { id: "Brand", label: "Brand" },
+              { id: "Color", label: "Color" },
+              { id: "Material", label: "Material" },
+              { id: "Dimensions", label: "Dimensions" },
+              { id: "AssemblyRequired", label: "Assembly Required" },
+            ];
+
+            if (subCategory === "Chair") {
+              return [
+                ...common,
+                { id: "Seaters", label: "Seaters" },
+                { id: "HasArmRest", label: "Arm Rest" },
+                { id: "HasWheels", label: "Wheels" },
+                { id: "IsRecliner", label: "Recliner" },
+                { id: "UpholsteryType", label: "Cushion / Upholstery" },
+                { id: "HasAdjustableHeight", label: "Adjustable Height" },
+                { id: "IsRotating", label: "Rotates" },
+                { id: "LegCount", label: "Leg Count" },
+              ];
+            }
+
+            if (subCategory === "Sofa") {
+              return [
+                ...common,
+                { id: "Seaters", label: "Seaters" },
+                { id: "HasArmRest", label: "Arm Rest" },
+                { id: "IsRecliner", label: "Recliner" },
+                { id: "UpholsteryType", label: "Cushion / Upholstery" },
+                { id: "SeatingCapacity", label: "Seating Capacity" },
+                { id: "Shape", label: "Shape" },
+                { id: "IsConvertible", label: "Convertible" },
+              ];
+            }
+
+            if (subCategory === "Shelf") {
+              return [
+                ...common,
+                { id: "ShelfCount", label: "Shelf Count" },
+                { id: "Volume", label: "Volume" },
+                { id: "IsOpen", label: "Open Shelf" },
+                { id: "MountType", label: "Mount Type" },
+              ];
+            }
+
+            if (subCategory === "Wardrobe") {
+              return [
+                ...common,
+                { id: "DoorCount", label: "Door Count" },
+                { id: "DrawerCount", label: "Drawer Count" },
+                { id: "HasLock", label: "Has Lock" },
+                { id: "DoorKind", label: "Door Type" },
+                { id: "HasLocker", label: "Has Locker" },
+                { id: "HasMirror", label: "Has Mirror" },
+              ];
+            }
+
+            if (subCategory === "Dining") {
+              return [
+                ...common,
+                { id: "WeightCap", label: "Max Weight" },
+                { id: "Shape", label: "Table Shape" },
+                { id: "TableTopThickness", label: "Top Thickness" },
+                { id: "TopMaterial", label: "Top Material" },
+                { id: "LegCount", label: "Leg Count" },
+              ];
+            }
+
+            if (subCategory === "Study") {
+              return [
+                ...common,
+                { id: "WeightCap", label: "Max Weight" },
+                { id: "DrawerCount", label: "Drawer Count" },
+                { id: "HasStorage", label: "Has Storage" },
+                { id: "Shape", label: "Shape" },
+                { id: "LegCount", label: "Leg Count" },
+              ];
+            }
+
+            return common;
+          }
+
+          const common = [
+            { id: "Brand", label: "Brand" },
+            { id: "Color", label: "Color" },
+          ];
+
+          if (subCategory === "Laptop") {
+            return [
+              ...common,
+              { id: "Storage", label: "HDD" },
+              { id: "RAM", label: "RAM" },
+              { id: "OS", label: "Operating System" },
+              { id: "DisplayTechnology", label: "Display Technology" },
+              { id: "DisplaySize", label: "Display Size" },
+              { id: "ProcessorSpeed", label: "Processor Speed (GHz)" },
+              { id: "ManufacturingYear", label: "Manufacturing Year" },
+            ];
+          }
+
+          if (subCategory === "Mobile") {
+            return [
+              ...common,
+              { id: "Storage", label: "Storage" },
+              { id: "OS", label: "Operating System" },
+              { id: "DisplayTechnology", label: "Display Technology" },
+              { id: "DisplaySize", label: "Display Size" },
+              { id: "BatteryLife", label: "Battery Life (hrs)" },
+              { id: "Pixels", label: "Camera (MP)" },
+              { id: "SIMSlots", label: "SIM Slots" },
+              { id: "ManufacturingYear", label: "Manufacturing Year" },
+            ];
+          }
+
+          if (subCategory === "TV") {
+            return [
+              { id: "Brand", label: "Brand" },
+              { id: "DisplayTechnology", label: "Display Technology" },
+              { id: "DisplaySize", label: "Display Size" },
+              { id: "ScreenResolution", label: "Screen Resolution" },
+              { id: "OS", label: "Operating System" },
+              { id: "ManufacturingYear", label: "Manufacturing Year" },
+            ];
+          }
+
+          return [];
+        }, [category, subCategory]);
+
+        const [selectedFilters, setSelectedFilters] = useState([]);
+        const [addFilterKey, setAddFilterKey] = useState("");
+
+        function resetDownstream() {
+          setCategory("");
+          setSubCategory("");
+          setFurnitureGroup("");
+          setFurnitureLeafDraft("");
+          setAttributes({});
+          setSelectedFilters([]);
+          setAddFilterKey("");
+          setStatus("");
+          setResponseText("");
+          setResultColumns([]);
+          setResultRows([]);
+          setErrorText("");
+          setShowDebug(false);
+        }
+
+        function handleCategoryChange(e) {
+          const next = e.target.value;
+          setCategory(next);
+          setSubCategory("");
+          setFurnitureGroup("");
+          setFurnitureLeafDraft("");
+          setAttributes({});
+          setSelectedFilters([]);
+          setAddFilterKey("");
+          setStatus("");
+          setResponseText("");
+          setResultColumns([]);
+          setResultRows([]);
+          setErrorText("");
+          setShowDebug(false);
+        }
+
+        function handleSubCategoryChange(e) {
+          const next = e.target.value;
+          setSubCategory(next);
+          setAttributes({});
+          setSelectedFilters([]);
+          setAddFilterKey("");
+          setStatus("");
+          setResponseText("");
+          setResultColumns([]);
+          setResultRows([]);
+          setErrorText("");
+          setShowDebug(false);
+        }
+
+        function handleFurnitureGroupChange(nextGroup) {
+          setFurnitureGroup(nextGroup);
+          setSubCategory("");
+          setFurnitureLeafDraft("");
+          setAttributes({});
+          setSelectedFilters([]);
+          setAddFilterKey("");
+          setStatus("");
+          setResponseText("");
+          setResultColumns([]);
+          setResultRows([]);
+          setErrorText("");
+          setShowDebug(false);
+        }
+
+        function confirmFurnitureLeaf() {
+          if (!furnitureLeafDraft) return;
+          setSubCategory(furnitureLeafDraft);
+          setAttributes({});
+          setSelectedFilters([]);
+          setAddFilterKey("");
+          setStatus("");
+          setResponseText("");
+          setResultColumns([]);
+          setResultRows([]);
+          setErrorText("");
+          setShowDebug(false);
+        }
+
+        function addSelectedFilter(filterId) {
+          if (!filterId) return;
+          setSelectedFilters((prev) => {
+            if (prev.includes(filterId)) return prev;
+            return [...prev, filterId];
+          });
+          setAddFilterKey("");
+        }
+
+        function removeSelectedFilter(filterId) {
+          setSelectedFilters((prev) => prev.filter((x) => x !== filterId));
+          setAttributes((prev) => {
+            const next = { ...prev };
+            if (filterId === "Storage") {
+              delete next.HDDValue;
+              delete next.HDDUnit;
+              delete next.StorageValue;
+              delete next.StorageUnit;
+              delete next.HDD;
+              delete next.Storage;
+              return next;
+            }
+            if (filterId === "RAM") {
+              delete next.RAMValue;
+              delete next.RAMUnit;
+              delete next.RAM;
+              return next;
+            }
+            if (filterId === "ProcessorSpeed") {
+              delete next.ProcessorSpeedValue;
+              delete next.ProcessorSpeedUnit;
+              delete next.ProcessorSpeed;
+              return next;
+            }
+            delete next[filterId];
+            return next;
+          });
+        }
+
+        function formatPrice(value) {
+          if (value === null || value === undefined) return "";
+          const num = Number(value);
+          if (Number.isFinite(num)) {
+            try {
+              return new Intl.NumberFormat("en-IN", {
+                style: "currency",
+                currency: "INR",
+                maximumFractionDigits: 0,
+              }).format(num);
+            } catch {
+              return String(value);
+            }
+          }
+          return String(value);
+        }
+
+        function handleAttributeChange(key, value) {
+          setAttributes((prev) => {
+            const next = { ...prev };
+            if (!value) {
+              delete next[key];
+              return next;
+            }
+            next[key] = value;
+            return next;
+          });
+        }
+
+        const payload = useMemo(() => {
+          const base = {
+            category: category || null,
+            subCategory: subCategory || null,
+            attributes: attributes || {},
+          };
+
+          const nextAttrs = { ...base.attributes };
+
+          if (subCategory === "Laptop") {
+            if (nextAttrs.Storage && !nextAttrs.HDD && !nextAttrs.HDDValue && !nextAttrs.HDDUnit) {
+              nextAttrs.HDD = nextAttrs.Storage;
+              delete nextAttrs.Storage;
+            }
+
+            if (nextAttrs.HDDValue && nextAttrs.HDDUnit) {
+              nextAttrs.HDD = String(nextAttrs.HDDValue) + String(nextAttrs.HDDUnit);
+              delete nextAttrs.HDDValue;
+              delete nextAttrs.HDDUnit;
+              delete nextAttrs.Storage;
+            }
+
+            if (nextAttrs.RAMValue && nextAttrs.RAMUnit) {
+              nextAttrs.RAM = String(nextAttrs.RAMValue) + String(nextAttrs.RAMUnit);
+              delete nextAttrs.RAMValue;
+              delete nextAttrs.RAMUnit;
+            }
+
+            if (nextAttrs.ProcessorSpeedValue && nextAttrs.ProcessorSpeedUnit) {
+              nextAttrs.ProcessorSpeed = String(nextAttrs.ProcessorSpeedValue) + String(nextAttrs.ProcessorSpeedUnit);
+              delete nextAttrs.ProcessorSpeedValue;
+              delete nextAttrs.ProcessorSpeedUnit;
+            }
+          }
+
+          if (subCategory !== "Laptop") {
+            if (nextAttrs.StorageValue && nextAttrs.StorageUnit) {
+              nextAttrs.Storage = String(nextAttrs.StorageValue) + String(nextAttrs.StorageUnit);
+              delete nextAttrs.StorageValue;
+              delete nextAttrs.StorageUnit;
+            }
+          }
+
+          return {
+            ...base,
+            attributes: nextAttrs,
+          };
+        }, [category, subCategory, attributes]);
+
+        async function handleSubmit(e) {
+          e.preventDefault();
+          setSubmitting(true);
+          setStatus("");
+          setResponseText("");
+          setResultColumns([]);
+          setResultRows([]);
+          setErrorText("");
+
+          try {
+            const res = await fetch("http://localhost:8080/products/search", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(payload),
+            });
+
+            const text = await res.text();
+
+            if (!res.ok) {
+              setStatus("Request failed");
+              setErrorText(text || `HTTP ${res.status}`);
+              return;
+            }
+
+            setStatus("Request succeeded");
+
+            try {
+              const json = text ? JSON.parse(text) : {};
+              setResponseText(JSON.stringify(json, null, 2));
+
+              const rows = Array.isArray(json.rows) ? json.rows : [];
+
+              // Force a user-friendly table shape.
+              setResultColumns(["productName", "price", "platform"]);
+              setResultRows(rows);
+            } catch {
+              setResponseText(text || "(empty response)");
+            }
+          } catch (err) {
+            setStatus("Request failed");
+            setErrorText(String(err));
+          } finally {
+            setSubmitting(false);
+          }
+        }
+
+        function handleReset() {
+          resetDownstream();
+          setAttributes({});
+          setStatus("");
+          setResponseText("");
+          setResultColumns([]);
+          setResultRows([]);
+          setErrorText("");
+          setShowDebug(false);
+          setPriceSortDir("");
+        }
+
+        const needsRam = selectedFilters.includes("RAM");
+        const ramOk = !needsRam || (Boolean(attributes.RAMValue) && Boolean(attributes.RAMUnit));
+        const needsHdd = subCategory === "Laptop" && selectedFilters.includes("Storage");
+        const hddOk = !needsHdd || (Boolean(attributes.HDDValue) && Boolean(attributes.HDDUnit));
+        const needsProcSpeed = subCategory === "Laptop" && selectedFilters.includes("ProcessorSpeed");
+        const procSpeedOk = !needsProcSpeed || (Boolean(attributes.ProcessorSpeedValue) && Boolean(attributes.ProcessorSpeedUnit));
+        const canSubmit = Boolean(category && subCategory) && ramOk && hddOk && procSpeedOk && !submitting;
+
+        const bestPrice = useMemo(() => {
+          if (!Array.isArray(resultRows) || resultRows.length === 0) return null;
+          let min = null;
+          for (const r of resultRows) {
+            const v = Number(r && r.price);
+            if (!Number.isFinite(v)) continue;
+            if (min === null || v < min) min = v;
+          }
+          return min;
+        }, [resultRows]);
+
+        const sortedRows = useMemo(() => {
+          if (!Array.isArray(resultRows)) return [];
+          if (!priceSortDir) return resultRows;
+
+          const dir = priceSortDir;
+          const copy = [...resultRows];
+          copy.sort((a, b) => {
+            const ap = Number(a && a.price);
+            const bp = Number(b && b.price);
+            const aOk = Number.isFinite(ap);
+            const bOk = Number.isFinite(bp);
+            if (!aOk && !bOk) return 0;
+            if (!aOk) return 1;
+            if (!bOk) return -1;
+            return dir === "asc" ? ap - bp : bp - ap;
+          });
+          return copy;
+        }, [resultRows, priceSortDir]);
+
+        function togglePriceSort() {
+          setPriceSortDir((prev) => {
+            if (prev === "") return "asc";
+            if (prev === "asc") return "desc";
+            return "";
+          });
+        }
+
+        function platformLogoSrc(platform) {
+          const p = String(platform || "").trim().toLowerCase();
+          if (!p) return "";
+          if (p.includes("amazon")) return "Logo/Amazon.png";
+          if (p.includes("flipkart")) return "Logo/Flipkart.png";
+          if (p.includes("myntra")) return "Logo/Myntra.png";
+          return "";
+        }
+
+        function toNum(v) {
+          const n = Number(v);
+          return Number.isFinite(n) ? n : null;
+        }
+
+        const optsForCategory = filterOptions[subCategory] || {};
+        const liveOptions = (dynamicOptions && dynamicOptions[subCategory]) || {};
+
+        useEffect(() => {
+          if (!category || !subCategory) {
+            setDynamicOptions(null);
+            return;
+          }
+
+          let cancelled = false;
+
+          (async () => {
+            try {
+              const res = await fetch("http://localhost:8080/products/filter-options", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ category, subCategory, attributes: {} }),
+              });
+
+              const json = await res.json();
+              const opts = (json && json.options) || {};
+              if (!cancelled) {
+                setDynamicOptions({ [subCategory]: opts });
+              }
+            } catch (e) {
+              if (!cancelled) {
+                setDynamicOptions(null);
+              }
+            }
+          })();
+
+          return () => {
+            cancelled = true;
+          };
+        }, [category, subCategory]);
+
+        function getOpt(key, fallback) {
+          const arr = liveOptions && liveOptions[key];
+          if (Array.isArray(arr) && arr.length > 0) return arr;
+          return fallback;
+        }
+
+        const isElectronic = category === "Electronic Devices";
+
+        return (
+          !category ? (
+            <div className="page">
+              <div className="panel" style={{ maxWidth: 540, margin: "60px auto", textAlign: "center" }}>
+                <div className="panelHead" style={{ textAlign: "center" }}>
+                  <h1 style={{ fontSize: "28px", marginBottom: 8 }}>Welcome to XCommerce</h1>
+                  <p className="sub" style={{ fontSize: "15px", lineHeight: 1.5 }}>
+                    Find the best deals across top platforms. Compare prices, specs, and more—all in one place.
+                  </p>
+                </div>
+                <div className="panelBody">
+                  <div style={{ display: "grid", gap: 20 }}>
+                    <div>
+                      <label>Category</label>
+                      <select value={category} onChange={handleCategoryChange}>
+                        <option value="">Select category</option>
+                        {categories.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="muted" style={{ fontSize: "13px", marginTop: -8 }}>
+                      Start by selecting a category to explore products.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="layout">
+              <div className="panel">
+                <div className="panelHead">
+                  <h1>Filters</h1>
+                  <p className="sub">
+                    Pick a product type, then refine by brand, color, storage and more.
+                  </p>
+                </div>
+
+                <div className="panelBody">
+                  <div style={{ display: "grid", gap: 10, marginBottom: 12 }}>
+                    <div>
+                      <label>Category</label>
+                      <select value={category} onChange={handleCategoryChange}>
+                        <option value="">Select category</option>
+                        {categories.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <label>Choose product</label>
+                    {isElectronic ? (
+                      <div className="chipRow">
+                        {electronicSubCategories.map((sc) => (
+                          <div
+                            key={sc}
+                            className={"chip " + (subCategory === sc ? "chipActive" : "")}
+                            onClick={() => handleSubCategoryChange({ target: { value: sc } })}
+                            role="button"
+                            tabIndex={0}
+                          >
+                            <div className="chipDot"></div>
+                            <div>
+                              <div className="chipLabel">{sc === "TV" ? "Television" : sc}</div>
+                              <div className="chipSub">{sc === "Laptop" ? "RAM • Storage • OS" : sc === "Mobile" ? "Storage • Color • SIM" : "Screen • Resolution"}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : category === "Furniture" ? (
+                      <div style={{ display: "grid", gap: 10 }}>
+                        <div className="chipRow">
+                          {furnitureGroups.map((g) => (
+                            <div
+                              key={g}
+                              className={"chip " + (furnitureGroup === g ? "chipActive" : "")}
+                              onClick={() => handleFurnitureGroupChange(g)}
+                              role="button"
+                              tabIndex={0}
+                            >
+                              <div className="chipDot"></div>
+                              <div>
+                                <div className="chipLabel">{g}</div>
+                                <div className="chipSub">Pick a section</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {!furnitureGroup ? (
+                          <div className="status">Select a furniture section to continue.</div>
+                        ) : (
+                          <div className="filterBox" style={{ marginTop: 4 }}>
+                            <div className="filterHeader">
+                              <label>Select {furnitureGroup} type</label>
+                            </div>
+                            <div className="inlineSplit">
+                              <select
+                                value={furnitureLeafDraft}
+                                onChange={(e) => setFurnitureLeafDraft(e.target.value)}
+                              >
+                                <option value="">Select type</option>
+                                {(furnitureLeavesByGroup[furnitureGroup] || []).map((leaf) => (
+                                  <option key={leaf} value={leaf}>
+                                    {leaf}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                type="button"
+                                className="btn btnPrimary"
+                                onClick={confirmFurnitureLeaf}
+                                disabled={!furnitureLeafDraft}
+                              >
+                                Continue
+                              </button>
+                            </div>
+                            {subCategory ? (
+                              <div className="muted" style={{ marginTop: 8, fontSize: 13 }}>
+                                Selected: {furnitureGroup} → {subCategory}
+                              </div>
+                            ) : null}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="status">Select a category to continue.</div>
+                    )}
+                  </div>
+
+                  <form onSubmit={handleSubmit}>
+                    {!subCategory ? null : (
+                      <div style={{ display: "grid", gap: 10 }}>
+                        <div>
+                          <div className="filterHeader">
+                            <label>Add filter</label>
+                            <span className="muted">Choose what you want to filter by</span>
+                          </div>
+                          <div className="inlineSplit">
+                            <select value={addFilterKey} onChange={(e) => setAddFilterKey(e.target.value)}>
+                              <option value="">Select filter</option>
+                              {filterCatalog
+                                .filter((f) => !selectedFilters.includes(f.id))
+                                .map((f) => (
+                                  <option key={f.id} value={f.id}>
+                                    {f.label}
+                                  </option>
+                                ))}
+                            </select>
+                            <button
+                              type="button"
+                              className="xBtn"
+                              disabled={!addFilterKey}
+                              onClick={() => addSelectedFilter(addFilterKey)}
+                            >
+                              Add
+                            </button>
+                          </div>
+                        </div>
+
+                        {selectedFilters.length === 0 ? (
+                          <div className="status">No filters selected. Add a filter above.</div>
+                        ) : (
+                          <div className="grid2">
+                            {selectedFilters.map((filterId) => {
+                              const label = (filterCatalog.find((f) => f.id === filterId) || {}).label || filterId;
+
+                              if (filterId === "RAM") {
+                                const ramValues = getOpt(
+                                  "RAMValue",
+                                  (optsForCategory && optsForCategory.RAM) || ["8", "16", "32", "64"]
+                                );
+                                const ramUnits = getOpt("RAMUnit", ["GB"]);
+                                return (
+                                  <div key={filterId} className="filterBox">
+                                    <label>{label}</label>
+                                    <div className="fieldWrap">
+                                      <button
+                                        type="button"
+                                        className="filterClose"
+                                        onClick={() => removeSelectedFilter(filterId)}
+                                        aria-label="Remove filter"
+                                      >
+                                        ×
+                                      </button>
+                                      <div className="inlineSplit">
+                                        <select
+                                          value={attributes.RAMValue || ""}
+                                          onChange={(e) => handleAttributeChange("RAMValue", e.target.value)}
+                                        >
+                                          <option value="">Value</option>
+                                          {ramValues.map((v) => (
+                                            <option key={v} value={v}>
+                                              {v}
+                                            </option>
+                                          ))}
+                                        </select>
+                                        <select
+                                          className="unitSelect"
+                                          value={attributes.RAMUnit || ""}
+                                          onChange={(e) => handleAttributeChange("RAMUnit", e.target.value)}
+                                        >
+                                          <option value="">Unit</option>
+                                          {ramUnits.map((u) => (
+                                            <option key={u} value={u}>
+                                              {u}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      </div>
+                                    </div>
+                                    {(!attributes.RAMValue || !attributes.RAMUnit) && (
+                                      <div className="muted" style={{ marginTop: 6 }}>
+                                        Select both value and unit.
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              }
+
+                              if (filterId === "Storage") {
+                                if (subCategory === "Laptop") {
+                                  return (
+                                    <div key={filterId} className="filterBox">
+                                      <label>{label}</label>
+                                      <div className="fieldWrap">
+                                        <button
+                                          type="button"
+                                          className="filterClose"
+                                          onClick={() => removeSelectedFilter(filterId)}
+                                          aria-label="Remove filter"
+                                        >
+                                          ×
+                                        </button>
+                                        <div className="inlineSplit">
+                                          <select
+                                            value={attributes.HDDValue || ""}
+                                            onChange={(e) => handleAttributeChange("HDDValue", e.target.value)}
+                                          >
+                                            <option value="">Select value</option>
+                                            {getOpt("HDDValue", optsForCategory.HDDValue || []).map((v) => (
+                                              <option key={v} value={v}>
+                                                {v}
+                                              </option>
+                                            ))}
+                                          </select>
+                                          <select
+                                            className="unitSelect"
+                                            value={attributes.HDDUnit || ""}
+                                            onChange={(e) => handleAttributeChange("HDDUnit", e.target.value)}
+                                          >
+                                            <option value="">Unit</option>
+                                            {getOpt("HDDUnit", optsForCategory.HDDUnit || []).map((u) => (
+                                              <option key={u} value={u}>
+                                                {u}
+                                              </option>
+                                            ))}
+                                          </select>
+                                        </div>
+                                      </div>
+                                      {(!attributes.HDDValue || !attributes.HDDUnit) && (
+                                        <div className="muted" style={{ marginTop: 6 }}>
+                                          Select both value and unit.
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                }
+
+                                return (
+                                  <div key={filterId} className="filterBox">
+                                    <label>{label}</label>
+                                    <div className="fieldWrap">
+                                      <button
+                                        type="button"
+                                        className="filterClose"
+                                        onClick={() => removeSelectedFilter(filterId)}
+                                        aria-label="Remove filter"
+                                      >
+                                        ×
+                                      </button>
+                                      <div className="inlineSplit">
+                                        <select
+                                          value={attributes.StorageValue || ""}
+                                          onChange={(e) => handleAttributeChange("StorageValue", e.target.value)}
+                                        >
+                                          <option value="">Select value</option>
+                                          {getOpt("StorageValue", optsForCategory.StorageValue || []).map((v) => (
+                                            <option key={v} value={v}>
+                                              {v}
+                                            </option>
+                                          ))}
+                                        </select>
+                                        <select
+                                          className="unitSelect"
+                                          value={attributes.StorageUnit || ""}
+                                          onChange={(e) => handleAttributeChange("StorageUnit", e.target.value)}
+                                        >
+                                          <option value="">Unit</option>
+                                          {getOpt("StorageUnit", optsForCategory.StorageUnit || []).map((u) => (
+                                            <option key={u} value={u}>
+                                              {u}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              if (filterId === "ProcessorSpeed") {
+                                const psValues = getOpt("ProcessorSpeedValue", optsForCategory.ProcessorSpeed || []);
+                                const psUnits = getOpt("ProcessorSpeedUnit", ["GHz"]);
+                                return (
+                                  <div key={filterId} className="filterBox">
+                                    <label>{label}</label>
+                                    <div className="fieldWrap">
+                                      <button
+                                        type="button"
+                                        className="filterClose"
+                                        onClick={() => removeSelectedFilter(filterId)}
+                                        aria-label="Remove filter"
+                                      >
+                                        ×
+                                      </button>
+                                      <div className="inlineSplit">
+                                        <select
+                                          value={attributes.ProcessorSpeedValue || ""}
+                                          onChange={(e) => handleAttributeChange("ProcessorSpeedValue", e.target.value)}
+                                        >
+                                          <option value="">Value</option>
+                                          {psValues.map((v) => (
+                                            <option key={v} value={v}>
+                                              {v}
+                                            </option>
+                                          ))}
+                                        </select>
+                                        <select
+                                          className="unitSelect"
+                                          value={attributes.ProcessorSpeedUnit || ""}
+                                          onChange={(e) => handleAttributeChange("ProcessorSpeedUnit", e.target.value)}
+                                        >
+                                          <option value="">Unit</option>
+                                          {psUnits.map((u) => (
+                                            <option key={u} value={u}>
+                                              {u}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      </div>
+                                    </div>
+                                    {(!attributes.ProcessorSpeedValue || !attributes.ProcessorSpeedUnit) && (
+                                      <div className="muted" style={{ marginTop: 6 }}>
+                                        Select both value and unit.
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              }
+
+                              const options = getOpt(filterId, optsForCategory[filterId] || []);
+
+                              return (
+                                <div key={filterId} className="filterBox">
+                                  <label>{label}</label>
+                                  <div className="fieldWrap">
+                                    <button
+                                      type="button"
+                                      className="filterClose"
+                                      onClick={() => removeSelectedFilter(filterId)}
+                                      aria-label="Remove filter"
+                                    >
+                                      ×
+                                    </button>
+                                    <select
+                                      value={attributes[filterId] || ""}
+                                      onChange={(e) => handleAttributeChange(filterId, e.target.value)}
+                                    >
+                                      <option value="">Select</option>
+                                      {options.map((o) => (
+                                        <option key={o} value={o}>
+                                          {o}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="actions">
+                      <button type="submit" disabled={!canSubmit}>
+                        {submitting ? "Searching..." : "Search"}
+                      </button>
+                      <button type="button" className="secondary" onClick={handleReset}>
+                        Reset
+                      </button>
+                      {status && (
+                        <span className={"status " + (errorText ? "error" : responseText ? "ok" : "")}>{status}</span>
+                      )}
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <div className="right">
+                <div className="panel">
+                  <div className="panelHead">
+                    <div className="resultsHead">
+                      <strong>Results</strong>
+                      <div className="resultsHeadRight">
+                        <button
+                          type="button"
+                          className={"sortBtn" + (priceSortDir ? " active" : "")}
+                          onClick={togglePriceSort}
+                          title={
+                            priceSortDir === "asc"
+                              ? "Sort by price: low to high"
+                              : priceSortDir === "desc"
+                              ? "Sort by price: high to low"
+                              : "Sort by price"
+                          }
+                        >
+                          {priceSortDir === "asc" ? "↑" : priceSortDir === "desc" ? "↓" : "↑↓"}
+                        </button>
+                        <span className="muted">{subCategory === "TV" ? "Television" : subCategory}</span>
+                      </div>
+                    </div>
+                    <p className="sub">
+                      Showing matched products with name, price and platform.
+                    </p>
+                  </div>
+                  <div className="panelBody">
+                    {resultRows.length === 0 ? (
+                      <div className="status">No results yet. Apply filters and search.</div>
+                    ) : (
+                      <div className="cards">
+                        {sortedRows.map((row, idx) => {
+                          const nPrice = Number(row && row.price);
+                          const isBest = bestPrice !== null && Number.isFinite(nPrice) && nPrice === bestPrice;
+                          const platformText = (row && row.platform) || "";
+                          const logoSrc = platformLogoSrc(platformText);
+                          return (
+                          <div key={idx} className={"pCard" + (isBest ? " pBest" : "") }>
+                            <div className="pRow">
+                              <div className="pLeft">
+                                <p className="pName">{(row && row.productName) || ""}</p>
+                              </div>
+
+                              <div className="pPlatformCol" title={platformText}>
+                                {logoSrc ? (
+                                  <img
+                                    className="pLogo"
+                                    src={logoSrc}
+                                    alt={platformText}
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = "none";
+                                    }}
+                                  />
+                                ) : null}
+                              </div>
+                              <div className="pRight">
+                                {(() => {
+                                  const finalN = toNum(row && row.price);
+                                  const baseN = toNum(row && row.basePrice);
+                                  const hasOffer = String(row && row.hasOffer).trim() === "1";
+                                  const showBoth = hasOffer && baseN !== null && finalN !== null;
+                                  if (finalN === null) {
+                                    return <div className="pPriceInline">{formatPrice(row && row.price)}</div>;
+                                  }
+                                  return (
+                                    <div className="pPriceStack">
+                                      <div className={"pPriceOriginal" + (showBoth ? "" : " placeholder")}>
+                                        {showBoth ? formatPrice(baseN) : formatPrice(finalN)}
+                                      </div>
+                                      <div className="pPriceFinal">
+                                        {(() => {
+                                          const raw = (row && (row.bestDiscDec ?? row.debugDiscDec ?? row.debugDiscRaw)) || "";
+                                          const discN = Number(raw);
+                                          if (!Number.isFinite(discN) || discN <= 0) return null;
+                                          const pct = Math.round(discN * 10) / 10;
+                                          return <span className="pDiscountPct">-{pct}%</span>;
+                                        })()}
+                                        {formatPrice(finalN)}
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
+                              </div>
+                            </div>
+                          </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {false && (responseText || errorText) && (
+                  <div className="panel">
+                    <div className="panelBody"></div>
+                  </div>
+                )}
+
+                {false && (
+                  <div className="panel">
+                    <div className="panelBody"></div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<ProductSearchForm />);
+    </script>
+  </body>
+</html>
